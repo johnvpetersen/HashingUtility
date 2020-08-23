@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using App;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -15,6 +16,9 @@ namespace Tests
             var json = sut.ToString().Replace("test","TEST");
             sut = DeserializeObject<Root<string>>(json);
             Assert.True(sut.HasChanged());
+
+
+            
         }
 
        [Fact]
