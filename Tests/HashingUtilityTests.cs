@@ -1,8 +1,8 @@
 using Xunit;
 using App;
-using System.Security.Cryptography;
 using Moq;
 using System;
+using static Newtonsoft.Json.JsonConvert;
 
 namespace Tests
 {
@@ -11,7 +11,7 @@ namespace Tests
         [Fact]
         public void CanComputeHashFromObjectInstance() {
            var sut = HashUtility.Create();
-           var expected = 0;
+           var expected = -1292211014;
            var actual = sut.ComputeHashAndConvertToInt<string>("FOO");
            Assert.Equal(expected,actual);
         }

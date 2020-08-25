@@ -2,6 +2,7 @@ using System.Text;
 using System.Security.Cryptography;
 using System.IO;
 using System;
+using static Newtonsoft.Json.JsonConvert;
 
 namespace App
 {
@@ -24,8 +25,7 @@ namespace App
               return BitConverter.ToInt32(hash,0);
        }
        public Int32 ComputeHashAndConvertToInt<T>(T obj) {
-
-           return -1;
+        return ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
            /*
            _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
            return ConvertToInt(_lastComputedHash);
