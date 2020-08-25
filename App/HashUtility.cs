@@ -13,19 +13,10 @@ namespace App
        public int ByteCount  {get; private set;} = 0;
        public byte[] Bytes {get; private set;}
        public Stream Stream {get; private set;}
-
-
        public static HashUtility Build() => new HashUtility();
         public byte[] ComputeHash(byte[] bytes) => CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
 
-        private byte[] computeHash(byte[] bytes) {
-
-           using (var sha256 = SHA256.Create())
-           {
-               return sha256.ComputeHash(bytes);
-           }
-
-       }
+        private byte[] computeHash(byte[] bytes) => getAlgorithm().ComputeHash(bytes);
 
        public HashUtility SetCustomAlgorithm(ICustomAlgorithm customAlgorithm) {
            CustomAlgorithm = customAlgorithm;
