@@ -5,6 +5,7 @@ using System.IO;
 namespace App
 {
     public  class HashUtility {
+        public ICustomAlgorithm CustomAlgorithm {get; private set;}
        public EncodingOptions EncodingOption {get; private set;} = EncodingOptions.Default;
        public AlgorithmOptions AlgorithmOption {get; private set;} =  AlgorithmOptions.SHA256;
        public string HashName {get; private set;} = string.Empty;
@@ -15,12 +16,27 @@ namespace App
 
 
        public static HashUtility Build() => new HashUtility();
+        public byte[] ComputeHash(byte[] bytes) => CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
+
+        private byte[] computeHash(byte[] bytes) {
+
+           using (var sha256 = SHA256.Create())
+           {
+               return sha256.ComputeHash(bytes);
+           }
+
+       }
+
+       public HashUtility SetCustomAlgorithm(ICustomAlgorithm customAlgorithm) {
+           CustomAlgorithm = customAlgorithm;
+           return this;
+       }
         public HashUtility SetStream(Stream stream) {
             Stream = stream;
             return this;
         }
         public HashUtility SetBytes(byte[] bytes) {
-           return SetBytes(bytes,0,bytes.Length);            return this;
+           return SetBytes(bytes,0,bytes.Length);
         }
         public HashUtility SetBytes(byte[] bytes, int offset, int count) {
             Bytes = bytes;
