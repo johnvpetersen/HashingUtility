@@ -1,11 +1,12 @@
 using System.Text;
 using System.Security.Cryptography;
 using System.IO;
+using System;
 
 namespace App
 {
     public  class HashUtility {
-        public ICustomAlgorithm CustomAlgorithm {get; private set;}
+       public ICustomAlgorithm CustomAlgorithm {get; private set;}
        public EncodingOptions EncodingOption {get; private set;} = EncodingOptions.Default;
        public AlgorithmOptions AlgorithmOption {get; private set;} =  AlgorithmOptions.SHA256;
        public string HashName {get; private set;} = string.Empty;
@@ -13,11 +14,44 @@ namespace App
        public int ByteCount  {get; private set;} = 0;
        public byte[] Bytes {get; private set;}
        public Stream Stream {get; private set;}
-       public static HashUtility Build() => new HashUtility();
-        public byte[] ComputeHash(byte[] bytes) => CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
+       public static HashUtility Create() => new HashUtility();
+       public Int32 ConvertToInt()  => ConvertToInt(_lastComputedHash);
 
-        private byte[] computeHash(byte[] bytes) => getAlgorithm().ComputeHash(bytes);
+       public Int32 ConvertToInt(byte[] hash) {
+           if (BitConverter.IsLittleEndian)
+              Array.Reverse(hash);
+ 
+              return BitConverter.ToInt32(hash,0);
+       }
+       public Int32 ComputeHashAndConvertToInt<T>(T obj) {
 
+           return -1;
+           /*
+           _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
+           return ConvertToInt(_lastComputedHash);
+           */
+        }
+       public Int32 ComputeHashAndConvertToInt(byte[] bytes) {
+           _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
+           return ConvertToInt(_lastComputedHash);
+        }
+       public byte[] ComputeHash<T>(T obj) {
+           return null;
+       }
+       public byte[] ComputeHash(byte[] bytes) {
+           _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
+           return _lastComputedHash;
+        }
+       private byte[] _lastComputedHash = null;
+       private byte[] computeHash(byte[] bytes) {
+           byte[] hash = null;
+           
+           using (var algorithm = getAlgorithm())
+           {
+              hash = algorithm.ComputeHash(bytes);               
+           }
+           return hash;
+       } 
        public HashUtility SetCustomAlgorithm(ICustomAlgorithm customAlgorithm) {
            CustomAlgorithm = customAlgorithm;
            return this;
@@ -67,10 +101,10 @@ namespace App
       private HashAlgorithm getAlgorithm() {
           switch (AlgorithmOption)
           {
-              case AlgorithmOptions.SHA1:   return  SHA1.Create(HashName);
-              case AlgorithmOptions.SHA256: return  SHA256.Create(HashName);
-              case AlgorithmOptions.SHA384: return  SHA384.Create(HashName);
-              case AlgorithmOptions.SHA512: return  SHA512.Create(HashName);
+              case AlgorithmOptions.SHA1:   return string.IsNullOrEmpty(HashName)  ? SHA1.Create()   : SHA1.Create(HashName);
+              case AlgorithmOptions.SHA256: return  string.IsNullOrEmpty(HashName) ? SHA256.Create() : SHA256.Create(HashName);
+              case AlgorithmOptions.SHA384: return  string.IsNullOrEmpty(HashName) ? SHA384.Create() : SHA384.Create(HashName);
+              case AlgorithmOptions.SHA512: return  string.IsNullOrEmpty(HashName) ? SHA512.Create() : SHA512.Create(HashName);
           }
           return null;
        }
