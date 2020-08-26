@@ -16,7 +16,6 @@ namespace Tests
 
             Assert.Equal(expected,actual);
         }
-
         [Fact]
         public void CanComputeHashBytesFromObject() {
            var sut = HashUtility.Create();
@@ -27,7 +26,6 @@ namespace Tests
                Array.Reverse(bytes);
             Assert.Equal(expected,BitConverter.ToInt32(bytes));
         }
-
         [Fact]
         public void CanComputeHashFromObjectInstance() {
            var sut = HashUtility.Create();
@@ -35,7 +33,6 @@ namespace Tests
            var actual = sut.ComputeHashAndConvertToInt<string>("FOO");
            Assert.Equal(expected,actual);
         }
-
         [Fact]
         public void CanSetCustomAlgorithm() {
           var expected = new byte[] {0};  
