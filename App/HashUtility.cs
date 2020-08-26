@@ -24,21 +24,15 @@ namespace App
  
               return BitConverter.ToInt32(hash,0);
        }
-       public Int32 ComputeHashAndConvertToInt<T>(T obj) {
-        return ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
-           /*
-           _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
-           return ConvertToInt(_lastComputedHash);
-           */
-        }
-       public Int32 ComputeHashAndConvertToInt(byte[] bytes) {
+        public Int32 ComputeHashAndConvertToInt<T>(T obj) => ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
+        public Int32 ComputeHashAndConvertToInt(byte[] bytes) {
            _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
            return ConvertToInt(_lastComputedHash);
         }
-       public byte[] ComputeHash<T>(T obj) {
-           return null;
-       }
-       public byte[] ComputeHash(byte[] bytes) {
+        public byte[] ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
+        public Int32 ComputeHashAndConvertToInt(object obj) => ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
+
+        public byte[] ComputeHash(byte[] bytes) {
            _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
            return _lastComputedHash;
         }
@@ -52,6 +46,7 @@ namespace App
            }
            return hash;
        } 
+
        public HashUtility SetCustomAlgorithm(ICustomAlgorithm customAlgorithm) {
            CustomAlgorithm = customAlgorithm;
            return this;

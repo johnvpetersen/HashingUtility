@@ -9,6 +9,17 @@ namespace Tests
     public class HashingUtilityTests
     {
         [Fact]
+        public void CanComputeHashFromObject() {
+           var sut = HashUtility.Create();
+           var bytes =  sut.SelectEncodingOption(EncodingOptions.UTF8).ComputeHash("FOO");
+           var expected = -1292211014;
+
+             if (BitConverter.IsLittleEndian)
+               Array.Reverse(bytes);
+            Assert.Equal(expected,BitConverter.ToInt32(bytes));
+        }
+
+        [Fact]
         public void CanComputeHashFromObjectInstance() {
            var sut = HashUtility.Create();
            var expected = -1292211014;
