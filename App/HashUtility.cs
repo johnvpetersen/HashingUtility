@@ -31,7 +31,6 @@ namespace App
         }
         public byte[] ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
         public Int32 ComputeHashAndConvertToInt(object obj) => ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
-
         public byte[] ComputeHash(byte[] bytes) {
            _lastComputedHash = CustomAlgorithm != null ? CustomAlgorithm.ComputeHash(bytes) : computeHash(bytes);
            return _lastComputedHash;
