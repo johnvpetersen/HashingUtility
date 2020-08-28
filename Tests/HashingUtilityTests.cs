@@ -10,17 +10,29 @@ namespace Tests
     {
         
         [Fact]
-        public void CanVerifyPassedConfigWorks() {
-            var config = "{\"Locked\":true,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF32\",\"AlgorithmOption\":\"SHA512\",\"HashName\":\"\"}";
+        public void CanReadConfiguration() {
+
+            var config = "{\"Locked\":false,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF8\",\"AlgorithmOption\":\"SHA256\",\"HashName\":\"\"}";
             var sut = HashUtility.Create(config);
-            Assert.Equal(config,sut.ToString());
-       
+            var hash = sut.ComputeHash("FOO");
+            var val1 = sut.ConvertToInt(hash);
+            var val2 = sut.ConvertTo<Int32>(hash);
+            Assert.Equal(val1,val2);
+
         }
 
+        [Fact]
+        public void CanVerifyPassedConfigWorks() {
+            var config = "{\"Locked\":false,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF8\",\"AlgorithmOption\":\"SHA256\",\"HashName\":\"\"}";
+            var sut = HashUtility.Create(config);
+            Assert.Equal(config,sut.ToString());
+            Assert.Equal(-1292211014,sut.ComputeHashAndConvertToInt("FOO"));
+            sut.SetAlgorithmOption(AlgorithmOptions.SHA512).SetEncodingOption(EncodingOptions.UTF32);
+            Assert.Equal(-267213619,sut.ComputeHashAndConvertToInt("FOO"));
+        }
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-
         public void CanVerifyIfCustomAlgorithmIsSet(bool useCustomAlgorithm) {
             ICustomAlgorithm customAlgorithm = useCustomAlgorithm ? new MyAlgorithm() : null;
             var sut = HashUtility.Create(customAlgorithm);

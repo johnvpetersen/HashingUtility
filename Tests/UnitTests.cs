@@ -20,7 +20,6 @@ namespace Tests
 
             
         }
-
        [Fact]
        public void Test() {
            var sut = new TestClass2(1,"One");

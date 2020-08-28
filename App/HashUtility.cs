@@ -6,24 +6,21 @@ using static Newtonsoft.Json.JsonConvert;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 
 namespace App
 {
     public  class HashUtility {
-
-
        public HashUtility() {}
        public HashUtility(ICustomAlgorithm customAlgorithm, bool isLocked = false) {
            _customAlgorithm = customAlgorithm;
            Locked = isLocked;
        } 
-
        public HashUtility(AlgorithmOptions algorithmOption,EncodingOptions encodingOption, bool isLocked = false ) {
            AlgorithmOption = algorithmOption;
            EncodingOption = encodingOption;
            Locked = isLocked;
        } 
-
        public HashUtility(string config, ICustomAlgorithm customAlgorithm = null) {
            var x = JObject.Parse(config);
            Locked = Boolean.Parse(x.GetValue("Locked").ToString());
@@ -32,15 +29,9 @@ namespace App
            AlgorithmOption = (AlgorithmOptions)Enum.Parse(typeof(AlgorithmOptions),x.GetValue("AlgorithmOption").ToString());
            HashName = x.GetValue("HashName").ToString();
        }
-
-
        public override string ToString() => SerializeObject(this);
-
-
        public bool Locked {get; private set;}
-
        public bool CustomAlgorithm => _customAlgorithm != null;
-
        private byte[] _lastComputedHash = null;
        private ICustomAlgorithm _customAlgorithm;
        [JsonConverter(typeof(StringEnumConverter))] public EncodingOptions EncodingOption {get; private set;} = EncodingOptions.Default;
@@ -54,15 +45,43 @@ namespace App
        public static HashUtility Create(ICustomAlgorithm customAlgorithm) => new HashUtility(customAlgorithm);
        public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, bool isLocked) => new HashUtility(algorithmOption,encodingOption, isLocked);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
-
-
        public Int32 ConvertToInt()  => ConvertToInt(_lastComputedHash);
        public Int32 ConvertToInt(byte[] hash) {
+           
+           byte[] _hash = (byte[])hash.Clone();
+
+
            if (BitConverter.IsLittleEndian)
-              Array.Reverse(hash);
+              Array.Reverse(_hash);
  
-              return BitConverter.ToInt32(hash,0);
+              return BitConverter.ToInt32(_hash,0);
        }
+       
+        private byte[] cloneHash(byte[] hash) {
+           byte[] _hash = (byte[])hash.Clone();
+           if (BitConverter.IsLittleEndian)
+              Array.Reverse(_hash);
+           return _hash; 
+        }
+
+
+        public T ConvertTo<T>(byte[] hash) {
+ 
+               if ( typeof(T) == typeof(String))
+                  return  (T) Convert.ChangeType(BitConverter.ToString(cloneHash(hash),0), typeof(T));
+               if ( typeof(T) == typeof(Int32))
+                  return  (T) Convert.ChangeType(BitConverter.ToInt32(cloneHash(hash),0), typeof(T));
+
+
+
+               return  (T) Convert.ChangeType(BitConverter.ToBoolean(cloneHash(hash),0), typeof(T));
+
+        }  
+
+
+      
+  
+
         public Int32 ComputeHashAndConvertToInt<T>(T obj) => ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
         public Int32 ComputeHashAndConvertToInt(byte[] bytes) {
            _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes) : computeHash(bytes);
@@ -148,5 +167,7 @@ namespace App
           }
           return null;
        }
-   }
+ 
+
+    }
 }
