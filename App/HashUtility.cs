@@ -2,12 +2,11 @@ using System.Text;
 using System.Security.Cryptography;
 using System.IO;
 using System;
-using static Newtonsoft.Json.JsonConvert;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
-
+using static Newtonsoft.Json.JsonConvert;
 namespace App
 {
     public  class HashUtility {
@@ -22,12 +21,12 @@ namespace App
            Locked = isLocked;
        } 
        public HashUtility(string config, ICustomAlgorithm customAlgorithm = null) {
-           var x = JObject.Parse(config);
-           Locked = Boolean.Parse(x.GetValue("Locked").ToString());
+           var configObject = JObject.Parse(config);
+           Locked = Boolean.Parse(configObject.GetValue("Locked").ToString());
            _customAlgorithm = customAlgorithm;
-           EncodingOption =  (EncodingOptions)Enum.Parse(typeof(EncodingOptions),x.GetValue("EncodingOption").ToString());
-           AlgorithmOption = (AlgorithmOptions)Enum.Parse(typeof(AlgorithmOptions),x.GetValue("AlgorithmOption").ToString());
-           HashName = x.GetValue("HashName").ToString();
+           EncodingOption =  (EncodingOptions)Enum.Parse(typeof(EncodingOptions),configObject.GetValue("EncodingOption").ToString());
+           AlgorithmOption = (AlgorithmOptions)Enum.Parse(typeof(AlgorithmOptions),configObject.GetValue("AlgorithmOption").ToString());
+           HashName = configObject.GetValue("HashName").ToString();
        }
        public override string ToString() => SerializeObject(this);
        public bool Locked {get; private set;}
@@ -36,15 +35,12 @@ namespace App
        private ICustomAlgorithm _customAlgorithm;
        [JsonConverter(typeof(StringEnumConverter))] public EncodingOptions EncodingOption {get; private set;} = EncodingOptions.Default;
        [JsonConverter(typeof(StringEnumConverter))] public AlgorithmOptions AlgorithmOption {get; private set;} =  AlgorithmOptions.SHA256;
-       
        public override int GetHashCode() => ConvertToInt(_lastComputedHash);
-       
        public string HashName {get; private set;} = string.Empty;
        public static HashUtility Create() => new HashUtility();
        public static HashUtility Create(ICustomAlgorithm customAlgorithm) => new HashUtility(customAlgorithm);
        public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, bool isLocked) => new HashUtility(algorithmOption,encodingOption, isLocked);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
-       
        public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
        public string ConvertToString(byte[] hash, int startIndex = 0, int length = -1) =>  length > 0 ? BitConverter.ToString(hash,startIndex,length) : BitConverter.ToString(hash,startIndex); 
         public HashUtility Lock() {
@@ -52,47 +48,35 @@ namespace App
             return this;
         }
         public byte[] ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
-        public byte[] ComputeHash(byte[] bytes) {
-           _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes) : computeHash(bytes);
+        public byte[] ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
+               _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes, startIndex, length) : computeHash(bytes,startIndex,length);
            return _lastComputedHash;
         }
-
         private byte[] computeHash(Stream stream) { 
            byte[] hash = null;
-           
            using (var algorithm = getAlgorithm())
            {
               hash = algorithm.ComputeHash(stream);               
            }
            return hash;
-
-
-
        }
-
        private byte[] computeHash(byte[] bytes, int offset, int count) { 
            byte[] hash = null;
-           
+           count = count < 0 ? bytes.Length : count;
            using (var algorithm = getAlgorithm())
            {
               hash = algorithm.ComputeHash(bytes,offset,count);               
            }
            return hash;
-
-
-
        }
-
        private byte[] computeHash(byte[] bytes) {
            byte[] hash = null;
-           
            using (var algorithm = getAlgorithm())
            {
               hash = algorithm.ComputeHash(bytes);               
            }
            return hash;
        } 
-
        public HashUtility SetCustomAlgorithm(ICustomAlgorithm customAlgorithm) {
            if (!Locked)
               _customAlgorithm = customAlgorithm;

@@ -20,9 +20,7 @@ namespace Tests
 
             var val1 = sut.ConvertToInt(hash);
             Assert.Equal(val1,getHashCode);
-
         }
-
         [Fact]
         public void CanVerifyPassedConfigWorks() {
             var config = "{\"Locked\":false,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF8\",\"AlgorithmOption\":\"SHA256\",\"HashName\":\"\"}";
@@ -38,7 +36,7 @@ namespace Tests
         [InlineData(true)]
         [InlineData(false)]
         public void CanVerifyIfCustomAlgorithmIsSet(bool useCustomAlgorithm) {
-            ICustomAlgorithm customAlgorithm = useCustomAlgorithm ? new MyAlgorithm() : null;
+            ICustomAlgorithm customAlgorithm = useCustomAlgorithm ? new StubAlgorithm() : null;
             var sut = HashUtility.Create(customAlgorithm);
             Assert.Equal(useCustomAlgorithm,sut.CustomAlgorithm);
         }
@@ -46,7 +44,7 @@ namespace Tests
         public void CanVerifyLockFlagWorks() {
             var sut = HashUtility.Create(AlgorithmOptions.SHA512,EncodingOptions.UTF32,true);
             var json = sut.ToString();
-            sut.SetCustomAlgorithm(new MyAlgorithm());
+            sut.SetCustomAlgorithm(new StubAlgorithm());
             Assert.Equal(json,sut.ToString());
         }
         [Fact]
@@ -77,10 +75,10 @@ namespace Tests
         [Fact]
         public void CanSetCustomAlgorithm() {
           var expected = new byte[] {0};  
-          var mock = new Mock<ICustomAlgorithm>();
-          mock.Setup(x => x.ComputeHash(It.IsAny<byte[]>())).Returns((byte[] bytes) => expected);
-          var sut = HashUtility.Create().SetCustomAlgorithm(mock.Object);
+          var sut = HashUtility.Create().SetCustomAlgorithm(new StubAlgorithm());
           var actual = sut.ComputeHash(new byte[] {1});
+          Assert.Equal(expected,actual);
+          actual = sut.ComputeHash("FOO");
           Assert.Equal(expected,actual);
         } 
         [Fact]
@@ -153,10 +151,11 @@ namespace Tests
             Assert.Equal(EncodingOptions.UTF8, sut.EncodingOption);
         }
     }
-
-    public class MyAlgorithm : ICustomAlgorithm
+    public class StubAlgorithm : ICustomAlgorithm
     {
-        public byte[] ComputeHash(byte[] bytes) => new byte[] { 0 };
+        public byte[] ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) => new byte[] { 0 };
+
+        public byte[] ComputeHash(object obj)  => new byte[] { 0 };
     }
 
 

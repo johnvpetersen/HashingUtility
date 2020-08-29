@@ -1,6 +1,7 @@
 namespace App {
     public interface ICustomAlgorithm
     {
-        byte[] ComputeHash(byte[] bytes);
+         byte[] ComputeHash(object obj); 
+        byte[] ComputeHash(byte[] bytes, int startIndex , int length );
     }
 }
