@@ -10,6 +10,15 @@ namespace Tests
 {
     public class UnitTest1
     {
+
+        [Fact]
+        public void InvokingLockMethodLocksObject() {
+            var sut = HashUtility.Create();
+            Assert.False(sut.Locked);
+            sut.Lock();
+            Assert.True(sut.Locked);
+        } 
+
         [Fact]
         public void CanDetectChangedData() {
             var sut = new Root<string>("test");
@@ -38,7 +47,7 @@ namespace Tests
         public void CanInstantiateNewInstance()
         {
             var actual = new Root<TestClass>(new TestClass(1,"one")).ToString();
-            var expected = "{\"Data\":{\"Amount\":1,\"Description\":\"one\"},\"Hash\":308362742}";
+            var expected = "{\"Data\":{\"Amount\":1,\"Description\":\"one\"},\"Hash\":-1501495484}";
             Assert.Equal(expected,actual);
         }
     }

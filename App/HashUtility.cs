@@ -36,67 +36,60 @@ namespace App
        private ICustomAlgorithm _customAlgorithm;
        [JsonConverter(typeof(StringEnumConverter))] public EncodingOptions EncodingOption {get; private set;} = EncodingOptions.Default;
        [JsonConverter(typeof(StringEnumConverter))] public AlgorithmOptions AlgorithmOption {get; private set;} =  AlgorithmOptions.SHA256;
+       
+       public override int GetHashCode() => ConvertTo<Int32>(_lastComputedHash);
+       
        public string HashName {get; private set;} = string.Empty;
-       private int _byteOffset = 0;
-       private int _byteCount  = 0;
-       private byte[] _bytes;
-       private Stream _stream;
        public static HashUtility Create() => new HashUtility();
        public static HashUtility Create(ICustomAlgorithm customAlgorithm) => new HashUtility(customAlgorithm);
        public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, bool isLocked) => new HashUtility(algorithmOption,encodingOption, isLocked);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
-       public Int32 ConvertToInt()  => ConvertToInt(_lastComputedHash);
-       public Int32 ConvertToInt(byte[] hash) {
-           
-           byte[] _hash = (byte[])hash.Clone();
-
-
-           if (BitConverter.IsLittleEndian)
-              Array.Reverse(_hash);
- 
-              return BitConverter.ToInt32(_hash,0);
-       }
        
-        private byte[] cloneHash(byte[] hash) {
-           byte[] _hash = (byte[])hash.Clone();
-           if (BitConverter.IsLittleEndian)
-              Array.Reverse(_hash);
-           return _hash; 
-        }
-
-
         public T ConvertTo<T>(byte[] hash) {
  
                if ( typeof(T) == typeof(String))
-                  return  (T) Convert.ChangeType(BitConverter.ToString(cloneHash(hash),0), typeof(T));
+                  return  (T) Convert.ChangeType(BitConverter.ToString(hash,0), typeof(T));
                if ( typeof(T) == typeof(Int32))
-                  return  (T) Convert.ChangeType(BitConverter.ToInt32(cloneHash(hash),0), typeof(T));
+                  return  (T) Convert.ChangeType(BitConverter.ToInt32(hash,0), typeof(T));
 
-
-
-               return  (T) Convert.ChangeType(BitConverter.ToBoolean(cloneHash(hash),0), typeof(T));
-
+               return  (T) Convert.ChangeType(BitConverter.ToBoolean(hash,0), typeof(T));
         }  
-
-
-      
-  
-
-        public Int32 ComputeHashAndConvertToInt<T>(T obj) => ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
-        public Int32 ComputeHashAndConvertToInt(byte[] bytes) {
-           _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes) : computeHash(bytes);
-           return ConvertToInt(_lastComputedHash);
-        }
         public HashUtility Lock() {
             Locked = true;
             return this;
         }
         public byte[] ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
-        public Int32 ComputeHashAndConvertToInt(object obj) => ComputeHashAndConvertToInt(getEncodingOption().GetBytes(SerializeObject(obj)));
         public byte[] ComputeHash(byte[] bytes) {
            _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes) : computeHash(bytes);
            return _lastComputedHash;
         }
+
+        private byte[] computeHash(Stream stream) { 
+           byte[] hash = null;
+           
+           using (var algorithm = getAlgorithm())
+           {
+              hash = algorithm.ComputeHash(stream);               
+           }
+           return hash;
+
+
+
+       }
+
+       private byte[] computeHash(byte[] bytes, int offset, int count) { 
+           byte[] hash = null;
+           
+           using (var algorithm = getAlgorithm())
+           {
+              hash = algorithm.ComputeHash(bytes,offset,count);               
+           }
+           return hash;
+
+
+
+       }
+
        private byte[] computeHash(byte[] bytes) {
            byte[] hash = null;
            
@@ -112,19 +105,6 @@ namespace App
               _customAlgorithm = customAlgorithm;
            return this;
        }
-        public HashUtility SetStream(Stream stream) {
-               _stream = stream;
-            return this;
-        }
-        public HashUtility SetBytes(byte[] bytes) {
-            return SetBytes(bytes,0,bytes.Length);
-        }
-        public HashUtility SetBytes(byte[] bytes, int offset, int count) {
-               _bytes = bytes;
-               _byteOffset = offset;
-               _byteCount = count;
-            return this;
-        }
         public HashUtility SetAlgorithmOption(AlgorithmOptions algorithmOption) {
            return SetAlgorithmOption(algorithmOption,string.Empty);        
         }
@@ -167,7 +147,5 @@ namespace App
           }
           return null;
        }
- 
-
     }
 }

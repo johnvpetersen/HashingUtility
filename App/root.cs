@@ -23,11 +23,18 @@ namespace App
             return SerializeObject(new { Data = _data, Hash = _hash });
         }
         public override bool Equals(object obj) => obj.GetHashCode() == _hash;
-        private static int computeHash(object obj) => HashUtility.Create(
+        private static int computeHash(object obj) {
+
+          var hashUtility = HashUtility.Create(
               AlgorithmOptions.SHA256,
               EncodingOptions.UTF8,
-              true)
-              .ComputeHashAndConvertToInt(obj);
+              true);  
+
+          return  hashUtility.ConvertTo<Int32>(hashUtility.ComputeHash(obj));
+
+             
+
+        }
         public bool HasChanged() => computeHash(_data) != _hash;
         public override int GetHashCode() => computeHash(_data);
         public static Root<T> Create(T data)

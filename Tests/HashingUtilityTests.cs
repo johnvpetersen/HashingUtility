@@ -15,9 +15,11 @@ namespace Tests
             var config = "{\"Locked\":false,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF8\",\"AlgorithmOption\":\"SHA256\",\"HashName\":\"\"}";
             var sut = HashUtility.Create(config);
             var hash = sut.ComputeHash("FOO");
-            var val1 = sut.ConvertToInt(hash);
-            var val2 = sut.ConvertTo<Int32>(hash);
-            Assert.Equal(val1,val2);
+
+            var getHashCode = sut.GetHashCode();
+
+            var val1 = sut.ConvertTo<Int32>(hash);
+            Assert.Equal(val1,getHashCode);
 
         }
 
@@ -26,9 +28,11 @@ namespace Tests
             var config = "{\"Locked\":false,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF8\",\"AlgorithmOption\":\"SHA256\",\"HashName\":\"\"}";
             var sut = HashUtility.Create(config);
             Assert.Equal(config,sut.ToString());
-            Assert.Equal(-1292211014,sut.ComputeHashAndConvertToInt("FOO"));
+            var hash = sut.ComputeHash("FOO");
+            Assert.Equal(660221365,sut.ConvertTo<Int32>(hash));
             sut.SetAlgorithmOption(AlgorithmOptions.SHA512).SetEncodingOption(EncodingOptions.UTF32);
-            Assert.Equal(-267213619,sut.ComputeHashAndConvertToInt("FOO"));
+            hash = sut.ComputeHash("FOO"); 
+            Assert.Equal(1939473270,sut.ConvertTo<Int32>(hash));
         }
         [Theory]
         [InlineData(true)]
@@ -48,8 +52,9 @@ namespace Tests
         [Fact]
         public void CanComputeHashIntFromObject() {
            var sut = HashUtility.Create();
-           var actual =  sut.SetEncodingOption(EncodingOptions.UTF8).ComputeHashAndConvertToInt("FOO");
-           var expected = -1292211014;
+           var hash =  sut.SetEncodingOption(EncodingOptions.UTF8).ComputeHash("FOO");
+           var actual = sut.ConvertTo<Int32>(hash);
+           var expected = 660221365;
 
             Assert.Equal(expected,actual);
         }
@@ -57,17 +62,16 @@ namespace Tests
         public void CanComputeHashBytesFromObject() {
            var sut = HashUtility.Create();
            var bytes =  sut.SetEncodingOption(EncodingOptions.UTF8).ComputeHash("FOO");
-           var expected = -1292211014;
-
-             if (BitConverter.IsLittleEndian)
-               Array.Reverse(bytes);
-            Assert.Equal(expected,BitConverter.ToInt32(bytes));
+           var actual = sut.ConvertTo<Int32>(bytes);
+           var expected = 660221365;
+            Assert.Equal(expected,actual);
         }
         [Fact]
         public void CanComputeHashFromObjectInstance() {
            var sut = HashUtility.Create();
-           var expected = -1292211014;
-           var actual = sut.ComputeHashAndConvertToInt<string>("FOO");
+           var expected = 660221365;
+           var hash = sut.ComputeHash("FOO");
+           var actual = sut.ConvertTo<Int32>(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
@@ -81,45 +85,48 @@ namespace Tests
         } 
         [Fact]
         public void CanVerifySHA1WhenSelected() {
-           var expected = -308119473;
+           var expected = -1656968869;
            var sut = HashUtility.Create();
-           sut.SetAlgorithmOption(AlgorithmOptions.SHA1);     
-           var actual = sut.ComputeHashAndConvertToInt(new byte[] {0});
+           sut.SetAlgorithmOption(AlgorithmOptions.SHA1);
+           var hash = sut.ComputeHash(new byte[] {0});     
+           var actual = sut.ConvertTo<Int32>(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
         public void CanVerifySHA384WhenSelected() {
-           var expected = 144774935;
+           var expected = -1272856386;
            var sut = HashUtility.Create();
-           sut.SetAlgorithmOption(AlgorithmOptions.SHA384);     
-           var actual = sut.ComputeHashAndConvertToInt(new byte[] {0});
+           sut.SetAlgorithmOption(AlgorithmOptions.SHA384);
+           var hash = sut.ComputeHash(new byte[] {0});     
+           var actual = sut.ConvertTo<Int32>(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
         public void CanVerifySHA512WhenSelected() {
-           var expected = -479653650;
+           var expected = 38610104;
            var sut = HashUtility.Create();
            sut.SetAlgorithmOption(AlgorithmOptions.SHA512);     
-           var actual = sut.ComputeHashAndConvertToInt(new byte[] {0});
+           var hash = sut.ComputeHash(new byte[] {0});     
+           var actual = sut.ConvertTo<Int32>(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
         public void CanVerifySHA256WhenSelected() {
-           var expected = 397385757 ;
+           var expected = -1676987282 ;
            var sut = HashUtility.Create();
            sut.SetAlgorithmOption(AlgorithmOptions.SHA256);     
-            var actual = sut.ComputeHashAndConvertToInt(new byte[] {0});
-            Assert.Equal(expected,actual);
+           var hash = sut.ComputeHash(new byte[] {0});     
+           var actual = sut.ConvertTo<Int32>(hash);
+           Assert.Equal(expected,actual);
         }
        [Fact]
         public void CanVerifySHA256IsDefault()
         {
-            var expected = 397385757 ;
+            var expected = -1676987282 ;
             var sut = HashUtility.Create();
-            var actual = sut.ComputeHash(new byte[] {0});
-            if (BitConverter.IsLittleEndian)
-               Array.Reverse(actual);
-            Assert.Equal(expected,BitConverter.ToInt32(actual));
+            var hash = sut.ComputeHash(new byte[] {0});
+            var actual = sut.ConvertTo<Int32>(hash);
+            Assert.Equal(expected,actual);
         }
         [Fact]
         public void CanSelectAlgorithm()
