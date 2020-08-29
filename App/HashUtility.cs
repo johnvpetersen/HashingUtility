@@ -37,7 +37,7 @@ namespace App
        [JsonConverter(typeof(StringEnumConverter))] public EncodingOptions EncodingOption {get; private set;} = EncodingOptions.Default;
        [JsonConverter(typeof(StringEnumConverter))] public AlgorithmOptions AlgorithmOption {get; private set;} =  AlgorithmOptions.SHA256;
        
-       public override int GetHashCode() => ConvertTo<Int32>(_lastComputedHash);
+       public override int GetHashCode() => ConvertToInt(_lastComputedHash);
        
        public string HashName {get; private set;} = string.Empty;
        public static HashUtility Create() => new HashUtility();
@@ -45,15 +45,8 @@ namespace App
        public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, bool isLocked) => new HashUtility(algorithmOption,encodingOption, isLocked);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
        
-        public T ConvertTo<T>(byte[] hash) {
- 
-               if ( typeof(T) == typeof(String))
-                  return  (T) Convert.ChangeType(BitConverter.ToString(hash,0), typeof(T));
-               if ( typeof(T) == typeof(Int32))
-                  return  (T) Convert.ChangeType(BitConverter.ToInt32(hash,0), typeof(T));
-
-               return  (T) Convert.ChangeType(BitConverter.ToBoolean(hash,0), typeof(T));
-        }  
+       public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
+       public string ConvertToString(byte[] hash, int startIndex = 0, int length = -1) =>  length > 0 ? BitConverter.ToString(hash,startIndex,length) : BitConverter.ToString(hash,startIndex); 
         public HashUtility Lock() {
             Locked = true;
             return this;

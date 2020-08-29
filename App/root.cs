@@ -30,7 +30,7 @@ namespace App
               EncodingOptions.UTF8,
               true);  
 
-          return  hashUtility.ConvertTo<Int32>(hashUtility.ComputeHash(obj));
+          return  hashUtility.ConvertToInt(hashUtility.ComputeHash(obj));
 
              
 

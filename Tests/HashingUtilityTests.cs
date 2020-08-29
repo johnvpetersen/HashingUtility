@@ -18,7 +18,7 @@ namespace Tests
 
             var getHashCode = sut.GetHashCode();
 
-            var val1 = sut.ConvertTo<Int32>(hash);
+            var val1 = sut.ConvertToInt(hash);
             Assert.Equal(val1,getHashCode);
 
         }
@@ -29,10 +29,10 @@ namespace Tests
             var sut = HashUtility.Create(config);
             Assert.Equal(config,sut.ToString());
             var hash = sut.ComputeHash("FOO");
-            Assert.Equal(660221365,sut.ConvertTo<Int32>(hash));
+            Assert.Equal(660221365,sut.ConvertToInt(hash));
             sut.SetAlgorithmOption(AlgorithmOptions.SHA512).SetEncodingOption(EncodingOptions.UTF32);
             hash = sut.ComputeHash("FOO"); 
-            Assert.Equal(1939473270,sut.ConvertTo<Int32>(hash));
+            Assert.Equal(1939473270,sut.ConvertToInt(hash));
         }
         [Theory]
         [InlineData(true)]
@@ -53,7 +53,7 @@ namespace Tests
         public void CanComputeHashIntFromObject() {
            var sut = HashUtility.Create();
            var hash =  sut.SetEncodingOption(EncodingOptions.UTF8).ComputeHash("FOO");
-           var actual = sut.ConvertTo<Int32>(hash);
+           var actual = sut.ConvertToInt(hash);
            var expected = 660221365;
 
             Assert.Equal(expected,actual);
@@ -62,7 +62,7 @@ namespace Tests
         public void CanComputeHashBytesFromObject() {
            var sut = HashUtility.Create();
            var bytes =  sut.SetEncodingOption(EncodingOptions.UTF8).ComputeHash("FOO");
-           var actual = sut.ConvertTo<Int32>(bytes);
+           var actual = sut.ConvertToInt(bytes);
            var expected = 660221365;
             Assert.Equal(expected,actual);
         }
@@ -71,7 +71,7 @@ namespace Tests
            var sut = HashUtility.Create();
            var expected = 660221365;
            var hash = sut.ComputeHash("FOO");
-           var actual = sut.ConvertTo<Int32>(hash);
+           var actual = sut.ConvertToInt(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
@@ -89,7 +89,7 @@ namespace Tests
            var sut = HashUtility.Create();
            sut.SetAlgorithmOption(AlgorithmOptions.SHA1);
            var hash = sut.ComputeHash(new byte[] {0});     
-           var actual = sut.ConvertTo<Int32>(hash);
+           var actual = sut.ConvertToInt(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
@@ -98,7 +98,7 @@ namespace Tests
            var sut = HashUtility.Create();
            sut.SetAlgorithmOption(AlgorithmOptions.SHA384);
            var hash = sut.ComputeHash(new byte[] {0});     
-           var actual = sut.ConvertTo<Int32>(hash);
+           var actual = sut.ConvertToInt(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
@@ -107,7 +107,7 @@ namespace Tests
            var sut = HashUtility.Create();
            sut.SetAlgorithmOption(AlgorithmOptions.SHA512);     
            var hash = sut.ComputeHash(new byte[] {0});     
-           var actual = sut.ConvertTo<Int32>(hash);
+           var actual = sut.ConvertToInt(hash);
            Assert.Equal(expected,actual);
         }
         [Fact]
@@ -116,7 +116,7 @@ namespace Tests
            var sut = HashUtility.Create();
            sut.SetAlgorithmOption(AlgorithmOptions.SHA256);     
            var hash = sut.ComputeHash(new byte[] {0});     
-           var actual = sut.ConvertTo<Int32>(hash);
+           var actual = sut.ConvertToInt(hash);
            Assert.Equal(expected,actual);
         }
        [Fact]
@@ -125,7 +125,7 @@ namespace Tests
             var expected = -1676987282 ;
             var sut = HashUtility.Create();
             var hash = sut.ComputeHash(new byte[] {0});
-            var actual = sut.ConvertTo<Int32>(hash);
+            var actual = sut.ConvertToInt(hash);
             Assert.Equal(expected,actual);
         }
         [Fact]
