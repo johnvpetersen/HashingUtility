@@ -8,7 +8,7 @@ using static Newtonsoft .Json.JsonConvert;
 
 namespace Tests
 {
-    public class UnitTest1
+    public class HashUtilityTests
     {
 
         [Fact]

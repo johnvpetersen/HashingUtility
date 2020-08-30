@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using static Newtonsoft.Json.JsonConvert;
 namespace App
 {
-    public  class HashUtility {
+    public  class HashUtility : IDisposable {
        public HashUtility() {}
        public HashUtility(ICustomAlgorithm customAlgorithm, bool isLocked = false) {
            _customAlgorithm = customAlgorithm;
@@ -41,17 +41,20 @@ namespace App
        public static HashUtility Create(ICustomAlgorithm customAlgorithm) => new HashUtility(customAlgorithm);
        public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, bool isLocked) => new HashUtility(algorithmOption,encodingOption, isLocked);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
+       public Int32 ConvertToInt(int startIndex = 0) => ConvertToInt(_lastComputedHash,startIndex);
+
        public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
        public string ConvertToString(byte[] hash, int startIndex = 0, int length = -1) =>  length > 0 ? BitConverter.ToString(hash,startIndex,length) : BitConverter.ToString(hash,startIndex); 
         public HashUtility Lock() {
             Locked = true;
             return this;
         }
-        public byte[] ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
-        public byte[] ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
+        public HashUtility ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
+        public HashUtility ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
                _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes, startIndex, length) : computeHash(bytes,startIndex,length);
-           return _lastComputedHash;
+           return this;
         }
+        public byte[] GetHash() => _lastComputedHash;
         private byte[] computeHash(Stream stream) { 
            byte[] hash = null;
            using (var algorithm = getAlgorithm())
@@ -124,5 +127,24 @@ namespace App
           }
           return null;
        }
+
+       public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }  
+
+         public void Dispose(bool disposer)
+        {
+            if (disposer)
+            {
+                _customAlgorithm.Dispose();
+                _customAlgorithm = null;
+            }
+        }
+         ~HashUtility()
+        {
+            Dispose(false);
+        }
     }
 }
