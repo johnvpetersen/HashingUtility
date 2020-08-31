@@ -42,9 +42,15 @@ namespace App
        public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, bool isLocked) => new HashUtility(algorithmOption,encodingOption, isLocked);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
        public Int32 ConvertToInt(int startIndex = 0) => ConvertToInt(_lastComputedHash,startIndex);
-
        public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
-       public string ConvertToString(byte[] hash, int startIndex = 0, int length = -1) =>  length > 0 ? BitConverter.ToString(hash,startIndex,length) : BitConverter.ToString(hash,startIndex); 
+       public string ConvertToString(int startIndex = 0) {
+
+
+             return BitConverter.ToString(_lastComputedHash);
+
+          
+
+       }  
         public HashUtility Lock() {
             Locked = true;
             return this;
@@ -80,6 +86,35 @@ namespace App
            }
            return hash;
        } 
+       public static string GenerateStringFromHash(HashUtilityConfig config, byte[] bytes, ICustomAlgorithm customAlgorithm = null)  => GenerateStringFromHash(config.ToString(),bytes,customAlgorithm);
+
+
+       public static string GenerateStringFromHash(string config, byte[] bytes, ICustomAlgorithm customAlgorithm = null) {
+           var retVal = string.Empty;
+
+           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
+           {
+              retVal  = hashUtility.ComputeHash(bytes).ConvertToString();
+           }
+
+           return retVal;
+       }
+
+
+       public static int GenerateIntFromHash(HashUtilityConfig config, byte[] bytes, ICustomAlgorithm customAlgorithm = null)  => GenerateIntFromHash(config.ToString(),bytes,customAlgorithm);
+
+
+       public static int GenerateIntFromHash(string config, byte[] bytes, ICustomAlgorithm customAlgorithm = null) {
+           Int32 retVal = 0;
+
+           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
+           {
+               retVal = hashUtility.ComputeHash(bytes).ConvertToInt();
+           }
+
+           return retVal;
+       }
+
        public HashUtility SetCustomAlgorithm(ICustomAlgorithm customAlgorithm) {
            if (!Locked)
               _customAlgorithm = customAlgorithm;
@@ -138,8 +173,10 @@ namespace App
         {
             if (disposer)
             {
+                if (_customAlgorithm != null) {
                 _customAlgorithm.Dispose();
                 _customAlgorithm = null;
+                }
             }
         }
          ~HashUtility()

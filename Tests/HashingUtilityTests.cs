@@ -8,17 +8,28 @@ namespace Tests
 {
     public class HashingUtilityTests
     {
-        [Fact]
-        public void CanReadConfiguration() {
-            var config = "{\"Locked\":false,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF8\",\"AlgorithmOption\":\"SHA256\",\"HashName\":\"\"}";
-            Assert.True(HashUtility.Create(config).ComputeHash("FOO").GetHashCode() > 0);
-        }
-        [Fact]
-        public void CanVerifyPassedConfigWorks() {
-            var config = "{\"Locked\":false,\"CustomAlgorithm\":false,\"EncodingOption\":\"UTF8\",\"AlgorithmOption\":\"SHA256\",\"HashName\":\"\"}";
 
-            Assert.Equal(660221365,HashUtility.Create(config).ComputeHash("FOO").GetHashCode());
-        }
+
+       [Fact]
+       public void CanUseConfigObjectToGenerateString() {
+           Assert.Equal("6E-34-0B-9C-FF-B3-7A-98-9C-A5-44-E6-BB-78-0A-2C-78-90-1D-3F-B3-37-38-76-85-11-A3-06-17-AF-A0-1D",HashUtility.GenerateStringFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8),new byte[] {0}));
+       }
+
+       [Fact]
+       public void CanUseConfigStringToGenerateString() {
+           Assert.Equal("6E-34-0B-9C-FF-B3-7A-98-9C-A5-44-E6-BB-78-0A-2C-78-90-1D-3F-B3-37-38-76-85-11-A3-06-17-AF-A0-1D",HashUtility.GenerateStringFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8).ToString(),new byte[] {0}));
+       }
+
+
+       [Fact]
+       public void CanUseConfigObjectToGenerateInt() {
+           Assert.Equal(-1676987282,HashUtility.GenerateIntFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8),new byte[] {0}));
+       }
+
+       [Fact]
+       public void CanUseConfigStringToGenerateInt() {
+           Assert.Equal(-1676987282,HashUtility.GenerateIntFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8).ToString(),new byte[] {0}));
+       }
         [Theory]
         [InlineData(true)]
         [InlineData(false)]

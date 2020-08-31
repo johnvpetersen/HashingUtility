@@ -25,12 +25,9 @@ namespace Tests
             var json = sut.ToString().Replace("test","TEST");
             sut = DeserializeObject<Root<string>>(json);
             Assert.True(sut.HasChanged());
-
-
-            
         }
        [Fact]
-       public void Test() {
+       public void TestSerializationAndDeSerialization() {
            var sut = new TestClass2(1,"One");
            var json = SerializeObject(sut);
            sut = new TestClass2(JObject.Parse(json));
