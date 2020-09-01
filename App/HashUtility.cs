@@ -11,25 +11,23 @@ namespace App
 {
     public  class HashUtility : IDisposable {
        public HashUtility() {}
-       public HashUtility(ICustomAlgorithm customAlgorithm, bool isLocked = false) {
+       public HashUtility(ICustomAlgorithm customAlgorithm) {
            _customAlgorithm = customAlgorithm;
-           Locked = isLocked;
        } 
-       public HashUtility(AlgorithmOptions algorithmOption,EncodingOptions encodingOption, bool isLocked = false ) {
+       public HashUtility(AlgorithmOptions algorithmOption,EncodingOptions encodingOption, string hashName = "") {
            AlgorithmOption = algorithmOption;
            EncodingOption = encodingOption;
-           Locked = isLocked;
+           HashName = hashName;
+           
        } 
        public HashUtility(string config, ICustomAlgorithm customAlgorithm = null) {
            var configObject = JObject.Parse(config);
-           Locked = Boolean.Parse(configObject.GetValue("Locked").ToString());
            _customAlgorithm = customAlgorithm;
            EncodingOption =  (EncodingOptions)Enum.Parse(typeof(EncodingOptions),configObject.GetValue("EncodingOption").ToString());
            AlgorithmOption = (AlgorithmOptions)Enum.Parse(typeof(AlgorithmOptions),configObject.GetValue("AlgorithmOption").ToString());
            HashName = configObject.GetValue("HashName").ToString();
        }
        public override string ToString() => SerializeObject(this);
-       public bool Locked {get; private set;}
        public bool CustomAlgorithm => _customAlgorithm != null;
        private byte[] _lastComputedHash = null;
        private ICustomAlgorithm _customAlgorithm;
@@ -39,29 +37,18 @@ namespace App
        public string HashName {get; private set;} = string.Empty;
        public static HashUtility Create() => new HashUtility();
        public static HashUtility Create(ICustomAlgorithm customAlgorithm) => new HashUtility(customAlgorithm);
-       public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, bool isLocked) => new HashUtility(algorithmOption,encodingOption, isLocked);
+       public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, string hashName, bool isLocked) => new HashUtility(algorithmOption,encodingOption, hashName);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
        public Int32 ConvertToInt(int startIndex = 0) => ConvertToInt(_lastComputedHash,startIndex);
        public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
-       public string ConvertToString(int startIndex = 0) {
-
-
-             return BitConverter.ToString(_lastComputedHash);
-
-          
-
-       }  
-        public HashUtility Lock() {
-            Locked = true;
-            return this;
-        }
-        public HashUtility ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
-        public HashUtility ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
+       public string ConvertToString(int startIndex = 0) => BitConverter.ToString(_lastComputedHash);
+       public HashUtility ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
+       public HashUtility ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
                _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes, startIndex, length) : computeHash(bytes,startIndex,length);
            return this;
         }
-        public byte[] GetHash() => _lastComputedHash;
-        private byte[] computeHash(Stream stream) { 
+       public byte[] GetHash() => _lastComputedHash;
+       private byte[] computeHash(Stream stream) { 
            byte[] hash = null;
            using (var algorithm = getAlgorithm())
            {
@@ -87,8 +74,6 @@ namespace App
            return hash;
        } 
        public static string GenerateStringFromHash(HashUtilityConfig config, byte[] bytes, ICustomAlgorithm customAlgorithm = null)  => GenerateStringFromHash(config.ToString(),bytes,customAlgorithm);
-
-
        public static string GenerateStringFromHash(string config, byte[] bytes, ICustomAlgorithm customAlgorithm = null) {
            var retVal = string.Empty;
 
@@ -96,17 +81,11 @@ namespace App
            {
               retVal  = hashUtility.ComputeHash(bytes).ConvertToString();
            }
-
            return retVal;
        }
-
-
        public static int GenerateIntFromHash(HashUtilityConfig config, byte[] bytes, ICustomAlgorithm customAlgorithm = null)  => GenerateIntFromHash(config.ToString(),bytes,customAlgorithm);
-
-
        public static int GenerateIntFromHash(string config, byte[] bytes, ICustomAlgorithm customAlgorithm = null) {
            Int32 retVal = 0;
-
            using (var hashUtility = HashUtility.Create(config, customAlgorithm))
            {
                retVal = hashUtility.ComputeHash(bytes).ConvertToInt();
@@ -114,33 +93,28 @@ namespace App
 
            return retVal;
        }
+       public static int GenerateIntFromObject(HashUtilityConfig config, object obj, ICustomAlgorithm customAlgorithm = null) => GenerateIntFromObject(config.ToString(),obj,customAlgorithm);
+       public static int GenerateIntFromObject(string config, object obj, ICustomAlgorithm customAlgorithm = null) {
+           Int32 retVal = 0;
 
-       public HashUtility SetCustomAlgorithm(ICustomAlgorithm customAlgorithm) {
-           if (!Locked)
-              _customAlgorithm = customAlgorithm;
-           return this;
+           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
+           {
+               var bytes = hashUtility.getEncodingOption().GetBytes(SerializeObject(obj));
+               retVal = hashUtility.ComputeHash(bytes).ConvertToInt();
+           }
+           return retVal;
        }
-        public HashUtility SetAlgorithmOption(AlgorithmOptions algorithmOption) {
-           return SetAlgorithmOption(algorithmOption,string.Empty);        
+       public static string GenerateStringFromObject(HashUtilityConfig config, object obj, ICustomAlgorithm customAlgorithm = null) => GenerateStringFromObject(config.ToString(),obj,customAlgorithm);
+       public static string GenerateStringFromObject(string config, object obj, ICustomAlgorithm customAlgorithm = null) { 
+          var retVal = string.Empty;
+           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
+           {
+               var bytes = hashUtility.getEncodingOption().GetBytes(SerializeObject(obj));
+               retVal = hashUtility.ComputeHash(bytes).ConvertToString();
+           }
+           return retVal;
         }
-        public HashUtility SetAlgorithmOption(AlgorithmOptions algorithmOption, string hashName) {
-            if (!Locked) {
-           AlgorithmOption = algorithmOption;
-           HashName = hashName;
-            }
-           return this;
-        }
-        public HashUtility SetEncodingOption(EncodingOptions encodingOption) {
-           if (!Locked)
-              EncodingOption = encodingOption;
-           return this;
-       }
-        public HashUtility SetHashName(string hashName) {
-        if (!Locked)
-           HashName = hashName;
-           return this;
-       }
-      private Encoding getEncodingOption() {
+       private Encoding getEncodingOption() {
           switch (EncodingOption)
           {
               case EncodingOptions.BigEndianUnicode: return Encoding.BigEndianUnicode;
@@ -152,7 +126,7 @@ namespace App
           }
           return null;
       }
-      private HashAlgorithm getAlgorithm() {
+       private HashAlgorithm getAlgorithm() {
           switch (AlgorithmOption)
           {
               case AlgorithmOptions.SHA1:   return string.IsNullOrEmpty(HashName)  ? SHA1.Create()   : SHA1.Create(HashName);
@@ -162,14 +136,12 @@ namespace App
           }
           return null;
        }
-
        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }  
-
-         public void Dispose(bool disposer)
+       public void Dispose(bool disposer)
         {
             if (disposer)
             {
@@ -179,7 +151,7 @@ namespace App
                 }
             }
         }
-         ~HashUtility()
+       ~HashUtility()
         {
             Dispose(false);
         }

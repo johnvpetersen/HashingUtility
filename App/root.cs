@@ -6,6 +6,7 @@ namespace App
     public class Root<T> : object
     {
         private readonly Int32 _hash;
+        private readonly HashUtilityConfig _hashConfig = new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8);
         private readonly T _data;
         [JsonConstructor]
         public Root(T data, Int32 hash)
@@ -23,18 +24,7 @@ namespace App
             return SerializeObject(new { Data = _data, Hash = _hash });
         }
         public override bool Equals(object obj) => obj.GetHashCode() == _hash;
-        private static int computeHash(object obj) {
-
-          var hashUtility = HashUtility.Create(
-              AlgorithmOptions.SHA256,
-              EncodingOptions.UTF8,
-              true);  
-
-          return  hashUtility.ComputeHash(obj).GetHashCode();
-
-             
-
-        }
+        private int computeHash(object obj) => HashUtility.GenerateIntFromObject(_hashConfig,this._data);
         public bool HasChanged() => computeHash(_data) != _hash;
         public override int GetHashCode() => computeHash(_data);
         public static Root<T> Create(T data)

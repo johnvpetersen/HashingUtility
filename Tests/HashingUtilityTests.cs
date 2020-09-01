@@ -8,8 +8,6 @@ namespace Tests
 {
     public class HashingUtilityTests
     {
-
-
        [Fact]
        public void CanUseConfigObjectToGenerateString() {
            Assert.Equal("6E-34-0B-9C-FF-B3-7A-98-9C-A5-44-E6-BB-78-0A-2C-78-90-1D-3F-B3-37-38-76-85-11-A3-06-17-AF-A0-1D",HashUtility.GenerateStringFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8),new byte[] {0}));
@@ -19,13 +17,10 @@ namespace Tests
        public void CanUseConfigStringToGenerateString() {
            Assert.Equal("6E-34-0B-9C-FF-B3-7A-98-9C-A5-44-E6-BB-78-0A-2C-78-90-1D-3F-B3-37-38-76-85-11-A3-06-17-AF-A0-1D",HashUtility.GenerateStringFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8).ToString(),new byte[] {0}));
        }
-
-
        [Fact]
        public void CanUseConfigObjectToGenerateInt() {
            Assert.Equal(-1676987282,HashUtility.GenerateIntFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8),new byte[] {0}));
        }
-
        [Fact]
        public void CanUseConfigStringToGenerateInt() {
            Assert.Equal(-1676987282,HashUtility.GenerateIntFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8).ToString(),new byte[] {0}));
@@ -40,18 +35,17 @@ namespace Tests
         }
         [Fact]
         public void CanVerifyWhenLockIsTrueObjectIsLocked() {
-            var sut = HashUtility.Create(AlgorithmOptions.SHA512,EncodingOptions.UTF32,true);
+            var sut = HashUtility.Create(new StubAlgorithm());
             var json = sut.ToString();
-            sut.SetCustomAlgorithm(new StubAlgorithm());
             Assert.Equal(json,sut.ToString());
         }
         [Fact]
         public void CanComputeHashIntFromObject() {
-            Assert.Equal(660221365,HashUtility.Create().SetEncodingOption(EncodingOptions.UTF8).ComputeHash("FOO").GetHashCode());
+            Assert.Equal(660221365,HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"",false).ComputeHash("FOO").GetHashCode());
         }
         [Fact]
         public void CanSetAndUseCustomAlgorithm() {
-          Assert.Equal(new byte[] {0},HashUtility.Create().SetCustomAlgorithm(new StubAlgorithm()).ComputeHash(new byte[] {1}).GetHash());
+          Assert.Equal(new byte[] {0},HashUtility.Create(new StubAlgorithm()).ComputeHash(new byte[] {1}).GetHash());
         } 
         [Theory]
         [InlineData(38610104,AlgorithmOptions.SHA512)]
@@ -59,7 +53,7 @@ namespace Tests
         [InlineData(-1272856386,AlgorithmOptions.SHA384)]
         [InlineData(-1656968869,AlgorithmOptions.SHA1)]
         public void CanVerifyAlgorithmOptionWhenSelected(Int32 expected, AlgorithmOptions selectedOption) {
-           Assert.Equal(expected,HashUtility.Create().SetAlgorithmOption(selectedOption).ComputeHash(new byte[] {0}).ConvertToInt());
+           Assert.Equal(expected,HashUtility.Create(selectedOption,EncodingOptions.UTF8,"",false).ComputeHash(new byte[] {0}).ConvertToInt());
         }
        [Fact]
         public void CanVerifySHA256IsDefault()
@@ -69,7 +63,7 @@ namespace Tests
         [Fact]
         public void HashNameCanBeSet()
         {
-            Assert.Equal("SHA256", HashUtility.Create().SetHashName("SHA256").HashName);
+            Assert.Equal("SHA256", HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"SHA256",false).HashName);
         }
         [Fact]
         public void DefaultEncodingIsSet()
@@ -79,20 +73,16 @@ namespace Tests
         [Fact]
         public void CanSelectEncoding()
         {
-            Assert.Equal(EncodingOptions.UTF8, HashUtility.Create().SetEncodingOption(EncodingOptions.UTF8).EncodingOption);
+            Assert.Equal(EncodingOptions.UTF8, HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"",false).EncodingOption);
         }
     }
     public class StubAlgorithm : ICustomAlgorithm
     {
         public byte[] ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) => new byte[] { 0 };
-
         public byte[] ComputeHash(object obj)  => new byte[] { 0 };
-
         public void Dispose()
         {
-        
+            Console.WriteLine("Custom algorithm is disposing.");
         }
     }
-
-
 }

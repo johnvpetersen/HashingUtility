@@ -8,17 +8,8 @@ using static Newtonsoft .Json.JsonConvert;
 
 namespace Tests
 {
-    public class HashUtilityTests
+    public class RootClassTests
     {
-
-        [Fact]
-        public void InvokingLockMethodLocksObject() {
-            var sut = HashUtility.Create();
-            Assert.False(sut.Locked);
-            sut.Lock();
-            Assert.True(sut.Locked);
-        } 
-
         [Fact]
         public void CanDetectChangedData() {
             var sut = new Root<string>("test");
@@ -33,13 +24,11 @@ namespace Tests
            sut = new TestClass2(JObject.Parse(json));
            Assert.Equal(json, sut.ToString());
        } 
-
         [Fact]
         public void UnchangedObjectHasChangedIsFalse() {
             var sut = new Root<TestClass>(new TestClass(1,"one"));
             Assert.False(sut.HasChanged());
         }
-
         [Fact]
         public void CanInstantiateNewInstance()
         {
@@ -48,7 +37,6 @@ namespace Tests
             Assert.Equal(expected,actual);
         }
     }
-
     public class TestClass2    {
         public TestClass2(JObject jObject)  {
             Amount = jObject.SelectToken("Amount").ToObject<Root<int>>();    //DeserializeObject<T>(jObject.SelectToken("Data").ToString());
