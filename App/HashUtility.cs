@@ -41,7 +41,7 @@ namespace App
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
        public Int32 ConvertToInt(int startIndex = 0) => ConvertToInt(_lastComputedHash,startIndex);
        public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
-       public string ConvertToString(int startIndex = 0) => BitConverter.ToString(_lastComputedHash);
+       public string ConvertToString(int startIndex = 0, bool createBase64String = false, Base64FormattingOptions base64FormattingOption = Base64FormattingOptions.None) =>  createBase64String ? Convert.ToBase64String(_lastComputedHash,startIndex, _lastComputedHash.Length, base64FormattingOption)  :  BitConverter.ToString(_lastComputedHash);
        public HashUtility ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
        public HashUtility ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
                _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes, startIndex, length) : computeHash(bytes,startIndex,length);
