@@ -8,6 +8,21 @@ namespace Tests
 {
     public class HashingUtilityTests
     {
+
+        [Fact]
+        public void CanGetBase64String() {
+        
+           var hashUtility =   HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"");
+            
+           var hash = hashUtility.ComputeHash(new byte[] {0}).GetHash();
+
+           var b64String = Convert.ToBase64String(hash,Base64FormattingOptions.InsertLineBreaks); 
+
+
+        }
+
+
+
        [Fact]
        public void CanUseConfigObjectToGenerateString() {
            Assert.Equal("6E-34-0B-9C-FF-B3-7A-98-9C-A5-44-E6-BB-78-0A-2C-78-90-1D-3F-B3-37-38-76-85-11-A3-06-17-AF-A0-1D",HashUtility.GenerateStringFromHash(new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8),new byte[] {0}));
@@ -41,7 +56,7 @@ namespace Tests
         }
         [Fact]
         public void CanComputeHashIntFromObject() {
-            Assert.Equal(660221365,HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"",false).ComputeHash("FOO").GetHashCode());
+            Assert.Equal(660221365,HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").ComputeHash("FOO").GetHashCode());
         }
         [Fact]
         public void CanSetAndUseCustomAlgorithm() {
@@ -53,7 +68,7 @@ namespace Tests
         [InlineData(-1272856386,AlgorithmOptions.SHA384)]
         [InlineData(-1656968869,AlgorithmOptions.SHA1)]
         public void CanVerifyAlgorithmOptionWhenSelected(Int32 expected, AlgorithmOptions selectedOption) {
-           Assert.Equal(expected,HashUtility.Create(selectedOption,EncodingOptions.UTF8,"",false).ComputeHash(new byte[] {0}).ConvertToInt());
+           Assert.Equal(expected,HashUtility.Create(selectedOption,EncodingOptions.UTF8,"").ComputeHash(new byte[] {0}).ConvertToInt());
         }
        [Fact]
         public void CanVerifySHA256IsDefault()
@@ -63,7 +78,7 @@ namespace Tests
         [Fact]
         public void HashNameCanBeSet()
         {
-            Assert.Equal("SHA256", HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"SHA256",false).HashName);
+            Assert.Equal("SHA256", HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"SHA256").HashName);
         }
         [Fact]
         public void DefaultEncodingIsSet()
@@ -73,7 +88,7 @@ namespace Tests
         [Fact]
         public void CanSelectEncoding()
         {
-            Assert.Equal(EncodingOptions.UTF8, HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"",false).EncodingOption);
+            Assert.Equal(EncodingOptions.UTF8, HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").EncodingOption);
         }
     }
     public class StubAlgorithm : ICustomAlgorithm

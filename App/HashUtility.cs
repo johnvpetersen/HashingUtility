@@ -37,7 +37,7 @@ namespace App
        public string HashName {get; private set;} = string.Empty;
        public static HashUtility Create() => new HashUtility();
        public static HashUtility Create(ICustomAlgorithm customAlgorithm) => new HashUtility(customAlgorithm);
-       public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, string hashName, bool isLocked) => new HashUtility(algorithmOption,encodingOption, hashName);
+       public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, string hashName) => new HashUtility(algorithmOption,encodingOption, hashName);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
        public Int32 ConvertToInt(int startIndex = 0) => ConvertToInt(_lastComputedHash,startIndex);
        public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
