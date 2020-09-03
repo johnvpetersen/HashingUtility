@@ -25,11 +25,15 @@ namespace App
            _customAlgorithm = customAlgorithm;
            EncodingOption =  (EncodingOptions)Enum.Parse(typeof(EncodingOptions),configObject.GetValue("EncodingOption").ToString());
            AlgorithmOption = (AlgorithmOptions)Enum.Parse(typeof(AlgorithmOptions),configObject.GetValue("AlgorithmOption").ToString());
+           _useBase64EncodedString =  Boolean.Parse(configObject.GetValue("UseBase64Encoding").ToString());
+           _base64FormattingOption = (Base64FormattingOptions)Enum.Parse(typeof(Base64FormattingOptions), configObject.GetValue("Base64FormattingOption").ToString());
            HashName = configObject.GetValue("HashName").ToString();
        }
        public override string ToString() => SerializeObject(this);
        public bool CustomAlgorithm => _customAlgorithm != null;
        private byte[] _lastComputedHash = null;
+       private bool _useBase64EncodedString = false;
+       private Base64FormattingOptions _base64FormattingOption = Base64FormattingOptions.None;
        private ICustomAlgorithm _customAlgorithm;
        [JsonConverter(typeof(StringEnumConverter))] public EncodingOptions EncodingOption {get; private set;} = EncodingOptions.Default;
        [JsonConverter(typeof(StringEnumConverter))] public AlgorithmOptions AlgorithmOption {get; private set;} =  AlgorithmOptions.SHA256;
@@ -41,7 +45,8 @@ namespace App
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
        public Int32 ConvertToInt(int startIndex = 0) => ConvertToInt(_lastComputedHash,startIndex);
        public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
-       public string ConvertToString(int startIndex = 0, bool createBase64String = false, Base64FormattingOptions base64FormattingOption = Base64FormattingOptions.None) =>  createBase64String ? Convert.ToBase64String(_lastComputedHash,startIndex, _lastComputedHash.Length, base64FormattingOption)  :  BitConverter.ToString(_lastComputedHash);
+       public string ConvertToString(int startIndex = 0) =>   _useBase64EncodedString ? Convert.ToBase64String(_lastComputedHash,_base64FormattingOption) : BitConverter.ToString(_lastComputedHash);
+       public string ConvertToString(int startIndex, bool createBase64String, Base64FormattingOptions base64FormattingOption = Base64FormattingOptions.None) =>  createBase64String ? Convert.ToBase64String(_lastComputedHash,startIndex, _lastComputedHash.Length, base64FormattingOption)  :  BitConverter.ToString(_lastComputedHash);
        public HashUtility ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
        public HashUtility ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
                _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes, startIndex, length) : computeHash(bytes,startIndex,length);

@@ -9,8 +9,13 @@ namespace Tests
     public class HashingUtilityTests
     {
         [Fact]
-        public void CanGetBase64String() {
-           Assert.Equal("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").ComputeHash(new byte[] {0}).ConvertToString(createBase64String:true));
+        public void CanCreateBase64StringViaConfig() {
+            var config = new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8,null,Base64FormattingOptions.None,true);
+            Assert.Equal("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(config.ToString()).ComputeHash(new byte[] {0}).ConvertToString());
+        }
+        [Fact]
+        public void CanGetBase64StringViaConvertToString() {
+           Assert.Equal("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").ComputeHash(new byte[] {0}).ConvertToString(startIndex:0,createBase64String:true));
         }
         [Theory]
         [InlineData(true)]
