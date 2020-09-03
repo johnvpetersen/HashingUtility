@@ -73,47 +73,6 @@ namespace App
            }
            return hash;
        } 
-       public static string GenerateStringFromHash(HashUtilityConfig config, byte[] bytes, ICustomAlgorithm customAlgorithm = null)  => GenerateStringFromHash(config.ToString(),bytes,customAlgorithm);
-       public static string GenerateStringFromHash(string config, byte[] bytes, ICustomAlgorithm customAlgorithm = null) {
-           var retVal = string.Empty;
-
-           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
-           {
-              retVal  = hashUtility.ComputeHash(bytes).ConvertToString();
-           }
-           return retVal;
-       }
-       public static int GenerateIntFromHash(HashUtilityConfig config, byte[] bytes, ICustomAlgorithm customAlgorithm = null)  => GenerateIntFromHash(config.ToString(),bytes,customAlgorithm);
-       public static int GenerateIntFromHash(string config, byte[] bytes, ICustomAlgorithm customAlgorithm = null) {
-           Int32 retVal = 0;
-           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
-           {
-               retVal = hashUtility.ComputeHash(bytes).ConvertToInt();
-           }
-
-           return retVal;
-       }
-       public static int GenerateIntFromObject(HashUtilityConfig config, object obj, ICustomAlgorithm customAlgorithm = null) => GenerateIntFromObject(config.ToString(),obj,customAlgorithm);
-       public static int GenerateIntFromObject(string config, object obj, ICustomAlgorithm customAlgorithm = null) {
-           Int32 retVal = 0;
-
-           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
-           {
-               var bytes = hashUtility.getEncodingOption().GetBytes(SerializeObject(obj));
-               retVal = hashUtility.ComputeHash(bytes).ConvertToInt();
-           }
-           return retVal;
-       }
-       public static string GenerateStringFromObject(HashUtilityConfig config, object obj, ICustomAlgorithm customAlgorithm = null) => GenerateStringFromObject(config.ToString(),obj,customAlgorithm);
-       public static string GenerateStringFromObject(string config, object obj, ICustomAlgorithm customAlgorithm = null) { 
-          var retVal = string.Empty;
-           using (var hashUtility = HashUtility.Create(config, customAlgorithm))
-           {
-               var bytes = hashUtility.getEncodingOption().GetBytes(SerializeObject(obj));
-               retVal = hashUtility.ComputeHash(bytes).ConvertToString();
-           }
-           return retVal;
-        }
        private Encoding getEncodingOption() {
           switch (EncodingOption)
           {
