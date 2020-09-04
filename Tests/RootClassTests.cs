@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 using static Newtonsoft .Json.JsonConvert;
-
 namespace Tests
 {
     public class RootClassTests
@@ -51,7 +50,6 @@ namespace Tests
         public Root<int> Amount {get; private set;}
         public Root<string> Description {get; private set;}
     }   
-
     public class TestClass    {
         public TestClass(int amount, string description)  {
             Amount = amount;
@@ -59,7 +57,6 @@ namespace Tests
         }
         public int Amount {get; private set;}
         public string Description {get; private set;}
-
         public static TestClass Create(int amount, string description) => new TestClass(amount,description);
     }
 }

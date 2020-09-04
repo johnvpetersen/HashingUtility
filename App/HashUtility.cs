@@ -5,7 +5,6 @@ using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using static Newtonsoft.Json.JsonConvert;
 namespace App
 {
@@ -18,7 +17,6 @@ namespace App
            AlgorithmOption = algorithmOption;
            EncodingOption = encodingOption;
            HashName = hashName;
-           
        } 
        public HashUtility(string config, ICustomAlgorithm customAlgorithm = null) {
            var configObject = JObject.Parse(config);

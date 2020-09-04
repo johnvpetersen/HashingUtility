@@ -1,21 +1,14 @@
 using Xunit;
 using App;
-using Moq;
 using System;
-using static Newtonsoft.Json.JsonConvert;
-
 namespace Tests
 {
     public class HashingUtilityTests
     {
         [Fact]
         public void CanGenerateConfigString() {
-         var x = HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8);
-
-         Assert.Equal("{\"CustomAlgorithm\":null,\"UseBase64Encoding\":false,\"AlgorithmOption\":\"SHA256\",\"Base64FormattingOption\":\"None\",\"EncodingOption\":\"UTF8\",\"HashName\":null}", x);
-
+         Assert.Equal("{\"CustomAlgorithm\":null,\"UseBase64Encoding\":false,\"AlgorithmOption\":\"SHA256\",\"Base64FormattingOption\":\"None\",\"EncodingOption\":\"UTF8\",\"HashName\":null}", HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8));
         }
-        
         [Fact]
         public void CanCreateBase64StringViaConfig() {
             var config = new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8,null,Base64FormattingOptions.None,true);
