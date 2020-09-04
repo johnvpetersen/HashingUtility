@@ -6,7 +6,7 @@ namespace App
     public class Root<T> : object
     {
         private readonly Int32 _hash;
-        private readonly string _hashConfig = new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8).ToString();
+        private readonly string _hashConfig = HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8);
         private readonly T _data;
         [JsonConstructor]
         public Root(T data, Int32 hash)

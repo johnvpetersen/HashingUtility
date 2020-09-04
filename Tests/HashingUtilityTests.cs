@@ -9,6 +9,14 @@ namespace Tests
     public class HashingUtilityTests
     {
         [Fact]
+        public void CanGenerateConfigString() {
+         var x = HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8);
+
+         Assert.Equal("{\"CustomAlgorithm\":null,\"UseBase64Encoding\":false,\"AlgorithmOption\":\"SHA256\",\"Base64FormattingOption\":\"None\",\"EncodingOption\":\"UTF8\",\"HashName\":null}", x);
+
+        }
+        
+        [Fact]
         public void CanCreateBase64StringViaConfig() {
             var config = new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8,null,Base64FormattingOptions.None,true);
             Assert.Equal("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(config.ToString()).ComputeHash(new byte[] {0}).ConvertToString());
