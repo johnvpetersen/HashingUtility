@@ -9,6 +9,11 @@ using static Newtonsoft.Json.JsonConvert;
 namespace App
 {
     public  class HashUtility : IDisposable {
+       public delegate void Notify(byte[] hash);
+       public event Notify HashGenerated;
+       protected virtual void OnHashGenerated() {
+          HashGenerated?.Invoke(_lastComputedHash);
+       }
        public HashUtility() {}
        public HashUtility(ICustomAlgorithm customAlgorithm) {
            _customAlgorithm = customAlgorithm;
@@ -48,7 +53,8 @@ namespace App
        public HashUtility ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
        public HashUtility ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
                _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes, startIndex, length) : computeHash(bytes,startIndex,length);
-           return this;
+               OnHashGenerated();
+               return this;
         }
        public byte[] GetHash() => _lastComputedHash;
        private byte[] computeHash(Stream stream) { 

@@ -3,8 +3,27 @@ using App;
 using System;
 namespace Tests
 {
+
+
     public class HashingUtilityTests
     {
+       private byte[] _generatedHash;
+
+       [Fact]
+       public void GeneratedHashEventDoesFire() {
+           _generatedHash = null;
+           var sut = HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,string.Empty);
+           sut.HashGenerated += HashIsGenerated;
+           sut.ComputeHash(new byte[] {0});
+           Assert.Equal(_generatedHash,sut.GetHash());
+
+       }
+       
+       public void HashIsGenerated(byte[] bytes) {
+          _generatedHash = bytes;
+       }
+
+
         [Fact]
         public void CanGenerateConfigString() {
          Assert.Equal("{\"CustomAlgorithm\":null,\"UseBase64Encoding\":false,\"AlgorithmOption\":\"SHA256\",\"Base64FormattingOption\":\"None\",\"EncodingOption\":\"UTF8\",\"HashName\":null}", HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8));
