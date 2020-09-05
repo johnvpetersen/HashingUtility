@@ -9,11 +9,25 @@ using static Newtonsoft.Json.JsonConvert;
 namespace App
 {
     public  class HashUtility : IDisposable {
-       public delegate void Notify(byte[] hash);
-       public event Notify HashGenerated;
+       public delegate void HashGeneratedNotification(byte[] hash);
+       public delegate void ConvertedToIntNotification(Int32 hash);
+       public delegate void ConvertedToStringNotification(string hash);
+
+       public event HashGeneratedNotification HashGenerated;
+       public event ConvertedToIntNotification ConvertedToInt;
+       public event ConvertedToStringNotification ConvertedToString;
+
        protected virtual void OnHashGenerated() {
           HashGenerated?.Invoke(_lastComputedHash);
        }
+       protected virtual void OnIntGenerated(Int32 hash) {
+          ConvertedToInt?.Invoke(hash);
+       }
+
+       protected virtual void OnStringGenerated(string hash) {
+          ConvertedToString?.Invoke(hash);
+       }
+
        public HashUtility() {}
        public HashUtility(ICustomAlgorithm customAlgorithm) {
            _customAlgorithm = customAlgorithm;
@@ -47,9 +61,25 @@ namespace App
        public static HashUtility Create(AlgorithmOptions algorithmOption, EncodingOptions encodingOption, string hashName) => new HashUtility(algorithmOption,encodingOption, hashName);
        public static HashUtility Create(string config, ICustomAlgorithm customAlgorithm = null) => new HashUtility(config,customAlgorithm);
        public Int32 ConvertToInt(int startIndex = 0) => ConvertToInt(_lastComputedHash,startIndex);
-       public Int32 ConvertToInt(byte[] hash, int startIndex = 0) => BitConverter.ToInt32(hash,startIndex);
-       public string ConvertToString(int startIndex = 0) =>   _useBase64EncodedString ? Convert.ToBase64String(_lastComputedHash,_base64FormattingOption) : BitConverter.ToString(_lastComputedHash);
-       public string ConvertToString(int startIndex, bool createBase64String, Base64FormattingOptions base64FormattingOption = Base64FormattingOptions.None) =>  createBase64String ? Convert.ToBase64String(_lastComputedHash,startIndex, _lastComputedHash.Length, base64FormattingOption)  :  BitConverter.ToString(_lastComputedHash);
+       public Int32 ConvertToInt(byte[] hash, int startIndex = 0) {
+          var retVal = BitConverter.ToInt32(hash,startIndex);
+          OnIntGenerated(retVal);
+          return retVal;
+       } 
+       public string ConvertToString(int startIndex = 0) {
+
+           var retVal = _useBase64EncodedString ? Convert.ToBase64String(_lastComputedHash,_base64FormattingOption) : BitConverter.ToString(_lastComputedHash);
+           OnStringGenerated(retVal);
+           return retVal;
+
+       }   
+       public string ConvertToString(int startIndex, bool createBase64String, Base64FormattingOptions base64FormattingOption = Base64FormattingOptions.None) {
+
+          var retVal = createBase64String ? Convert.ToBase64String(_lastComputedHash,startIndex, _lastComputedHash.Length, base64FormattingOption)  :  BitConverter.ToString(_lastComputedHash);
+          OnStringGenerated(retVal);
+          return retVal;
+
+       }  
        public HashUtility ComputeHash(object obj) => ComputeHash(getEncodingOption().GetBytes(SerializeObject(obj)));
        public HashUtility ComputeHash(byte[] bytes, int startIndex = 0, int length = -1) {
                _lastComputedHash = _customAlgorithm != null ? _customAlgorithm.ComputeHash(bytes, startIndex, length) : computeHash(bytes,startIndex,length);

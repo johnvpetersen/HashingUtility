@@ -3,12 +3,27 @@ using App;
 using System;
 namespace Tests
 {
-
-
     public class HashingUtilityTests
     {
        private byte[] _generatedHash;
-
+       private string _generatedString;
+       private Int32 _generatedInt;
+       [Fact]
+       public void GeneratedIntEventDoesFire() {
+           _generatedInt = 0;
+           var sut = HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,string.Empty);
+           sut.ConvertedToInt += IntIsGenerated;
+           sut.ComputeHash(new byte[] {0}).ConvertToInt();
+           Assert.Equal(_generatedInt,sut.ConvertToInt());
+       }
+       [Fact]
+       public void GeneratedStringEventDoesFire() {
+           _generatedString = string.Empty;
+           var sut = HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,string.Empty);
+           sut.ConvertedToString += StringIsGenerated;
+           sut.ComputeHash(new byte[] {0}).ConvertToString(0,createBase64String:true);
+           Assert.Equal(_generatedString,sut.ConvertToString(0,createBase64String:true));
+       }
        [Fact]
        public void GeneratedHashEventDoesFire() {
            _generatedHash = null;
@@ -16,14 +31,16 @@ namespace Tests
            sut.HashGenerated += HashIsGenerated;
            sut.ComputeHash(new byte[] {0});
            Assert.Equal(_generatedHash,sut.GetHash());
-
        }
-       
-       public void HashIsGenerated(byte[] bytes) {
+       void IntIsGenerated(Int32 hash) {
+           _generatedInt = hash;
+       }
+       void StringIsGenerated(string hash) {
+           _generatedString = hash;
+       }
+       void HashIsGenerated(byte[] bytes) {
           _generatedHash = bytes;
        }
-
-
         [Fact]
         public void CanGenerateConfigString() {
          Assert.Equal("{\"CustomAlgorithm\":null,\"UseBase64Encoding\":false,\"AlgorithmOption\":\"SHA256\",\"Base64FormattingOption\":\"None\",\"EncodingOption\":\"UTF8\",\"HashName\":null}", HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8));
