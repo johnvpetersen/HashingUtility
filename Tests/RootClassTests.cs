@@ -1,10 +1,8 @@
-using System;
-using System.Text;
 using App;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
-using static Newtonsoft .Json.JsonConvert;
+using static Newtonsoft.Json.JsonConvert;
 namespace Tests
 {
     public class RootClassTests
