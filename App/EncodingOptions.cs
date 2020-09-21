@@ -8,8 +8,4 @@ namespace App
             UTF7,
             UTF8
         }
-
-
-
- 
 }
