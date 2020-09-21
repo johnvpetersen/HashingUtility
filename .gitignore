@@ -15,7 +15,6 @@ bin
 obj
 
 Tests/TestResults
-Tests/coverage.*
 
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
