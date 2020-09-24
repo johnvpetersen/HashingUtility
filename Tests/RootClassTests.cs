@@ -1,37 +1,39 @@
 using App;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Xunit;
+
 using static Newtonsoft.Json.JsonConvert;
 namespace Tests
 {
+    [TestClass]
     public class RootClassTests
     {
-        [Fact]
+        [TestMethod]
         public void CanDetectChangedData() {
             var sut = new Root<string>("test");
             var json = sut.ToString().Replace("test","TEST");
             sut = DeserializeObject<Root<string>>(json);
-            Assert.True(sut.HasChanged());
+            Assert.IsTrue(sut.HasChanged());
         }
-       [Fact]
+       [TestMethod]
        public void TestSerializationAndDeSerialization() {
            var sut = new TestClass2(1,"One");
            var json = SerializeObject(sut);
            sut = new TestClass2(JObject.Parse(json));
-           Assert.Equal(json, sut.ToString());
+           Assert.AreEqual(json, sut.ToString());
        } 
-        [Fact]
+        [TestMethod]
         public void UnchangedObjectHasChangedIsFalse() {
             var sut = new Root<TestClass>(new TestClass(1,"one"));
-            Assert.False(sut.HasChanged());
+            Assert.IsFalse(sut.HasChanged());
         }
-        [Fact]
+        [TestMethod]
         public void CanInstantiateNewInstance()
         {
             var actual = new Root<TestClass>(new TestClass(1,"one")).ToString();
             var expected = "{\"Data\":{\"Amount\":1,\"Description\":\"one\"},\"Hash\":-1501495484}";
-            Assert.Equal(expected,actual);
+            Assert.AreEqual(expected,actual);
         }
     }
     public class TestClass2    {

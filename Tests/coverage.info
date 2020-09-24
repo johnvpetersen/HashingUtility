@@ -165,25 +165,25 @@ DA:123,7
 DA:124,7
 DA:125,7
 FN:126,System.Void App.HashUtility::Dispose(System.Boolean)
-FNDA:25,System.Void App.HashUtility::Dispose(System.Boolean)
-DA:127,25
-DA:128,25
+FNDA:7,System.Void App.HashUtility::Dispose(System.Boolean)
+DA:127,7
+DA:128,7
 DA:129,7
 DA:130,0
 DA:131,0
 DA:132,0
 DA:133,0
 DA:134,7
-DA:135,25
+DA:135,7
 BRDA:128,4,0,7
 BRDA:130,18,0,0
 BRDA:130,18,1,7
-BRDA:128,4,1,25
+BRDA:128,4,1,7
 FN:136,System.Void App.HashUtility::Finalize()
-FNDA:36,System.Void App.HashUtility::Finalize()
-DA:137,36
-DA:138,18
-DA:139,36
+FNDA:0,System.Void App.HashUtility::Finalize()
+DA:137,0
+DA:138,0
+DA:139,0
 FN:26,System.Void App.HashUtility::.ctor()
 FNDA:6,System.Void App.HashUtility::.ctor()
 DA:27,6
@@ -214,11 +214,11 @@ DA:42,8
 DA:43,8
 DA:44,8
 LF:114
-LH:95
+LH:92
 BRF:38
 BRH:23
 FNF:31
-FNH:30
+FNH:29
 end_of_record
 SF:/Users/johnvpetersen/repos/HashingUtility/App/HashUtilityConfig.cs
 FN:13,App.HashUtilityConfig App.HashUtilityConfig::setOptions(App.AlgorithmOptions,App.EncodingOptions,System.String,System.Base64FormattingOptions,System.Boolean)

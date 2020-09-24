@@ -1,36 +1,37 @@
-using Xunit;
 using App;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 namespace Tests
 {
+    [TestClass]
     public class HashingUtilityTests
     {
        private byte[] _generatedHash;
        private string _generatedString;
        private Int32 _generatedInt;
-       [Fact]
+       [TestMethod]
        public void GeneratedIntEventDoesFire() {
            _generatedInt = 0;
            var sut = HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,string.Empty);
            sut.ConvertedToInt += IntIsGenerated;
            sut.ComputeHash(new byte[] {0}).ConvertToInt();
-           Assert.Equal(_generatedInt,sut.ConvertToInt());
+           Assert.AreEqual(_generatedInt,sut.ConvertToInt());
        }
-       [Fact]
+       [TestMethod]
        public void GeneratedStringEventDoesFire() {
            _generatedString = string.Empty;
            var sut = HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,string.Empty);
            sut.ConvertedToString += StringIsGenerated;
            sut.ComputeHash(new byte[] {0}).ConvertToString(0,createBase64String:true);
-           Assert.Equal(_generatedString,sut.ConvertToString(0,createBase64String:true));
+           Assert.AreEqual(_generatedString,sut.ConvertToString(0,createBase64String:true));
        }
-       [Fact]
+       [TestMethod]
        public void GeneratedHashEventDoesFire() {
            _generatedHash = null;
            var sut = HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,string.Empty);
            sut.HashGenerated += HashIsGenerated;
            sut.ComputeHash(new byte[] {0});
-           Assert.Equal(_generatedHash,sut.GetHash());
+           Assert.AreEqual(_generatedHash,sut.GetHash());
        }
        void IntIsGenerated(Int32 hash) {
            _generatedInt = hash;
@@ -41,68 +42,68 @@ namespace Tests
        void HashIsGenerated(byte[] bytes) {
           _generatedHash = bytes;
        }
-        [Fact]
+        [TestMethod]
         public void CanGenerateConfigString() {
-         Assert.Equal("{\"CustomAlgorithm\":null,\"UseBase64Encoding\":false,\"AlgorithmOption\":\"SHA256\",\"Base64FormattingOption\":\"None\",\"EncodingOption\":\"UTF8\",\"HashName\":null}", HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8));
+         Assert.AreEqual("{\"CustomAlgorithm\":null,\"UseBase64Encoding\":false,\"AlgorithmOption\":\"SHA256\",\"Base64FormattingOption\":\"None\",\"EncodingOption\":\"UTF8\",\"HashName\":null}", HashUtilityConfig.GenerateConfigString(AlgorithmOptions.SHA256,EncodingOptions.UTF8));
         }
-        [Fact]
+        [TestMethod]
         public void CanCreateBase64StringViaConfig() {
             var config = new HashUtilityConfig(AlgorithmOptions.SHA256,EncodingOptions.UTF8,null,Base64FormattingOptions.None,true);
-            Assert.Equal("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(config.ToString()).ComputeHash(new byte[] {0}).ConvertToString());
+            Assert.AreEqual("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(config.ToString()).ComputeHash(new byte[] {0}).ConvertToString());
         }
-        [Fact]
+        [TestMethod]
         public void CanGetBase64StringViaConvertToString() {
-           Assert.Equal("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").ComputeHash(new byte[] {0}).ConvertToString(startIndex:0,createBase64String:true));
+           Assert.AreEqual("bjQLnP+zepicpUTmu3gKLHiQHT+zNzh2hRGjBhevoB0=",HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").ComputeHash(new byte[] {0}).ConvertToString(startIndex:0,createBase64String:true));
         }
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
+        [DataTestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
         public void CanVerifyIfCustomAlgorithmIsSet(bool useCustomAlgorithm) {
             ICustomAlgorithm customAlgorithm = useCustomAlgorithm ? new StubAlgorithm() : null;
             var sut = HashUtility.Create(customAlgorithm);
-            Assert.Equal(useCustomAlgorithm,sut.CustomAlgorithm);
+            Assert.AreEqual(useCustomAlgorithm,sut.CustomAlgorithm);
         }
-        [Fact]
+        [TestMethod]
         public void CanVerifyWhenLockIsTrueObjectIsLocked() {
             var sut = HashUtility.Create(new StubAlgorithm());
             var json = sut.ToString();
-            Assert.Equal(json,sut.ToString());
+            Assert.AreEqual(json,sut.ToString());
         }
-        [Fact]
+        [TestMethod]
         public void CanComputeHashIntFromObject() {
-            Assert.Equal(660221365,HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").ComputeHash("FOO").GetHashCode());
+            Assert.AreEqual(660221365,HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").ComputeHash("FOO").GetHashCode());
         }
-        [Fact]
+        [TestMethod]
         public void CanSetAndUseCustomAlgorithm() {
-          Assert.Equal(new byte[] {0},HashUtility.Create(new StubAlgorithm()).ComputeHash(new byte[] {1}).GetHash());
+          Assert.AreEqual((new byte[] {0}).Length,HashUtility.Create(new StubAlgorithm()).ComputeHash(new byte[] {1}).GetHash().Length);
         } 
-        [Theory]
-        [InlineData(38610104,AlgorithmOptions.SHA512)]
-        [InlineData(-1676987282,AlgorithmOptions.SHA256)]
-        [InlineData(-1272856386,AlgorithmOptions.SHA384)]
-        [InlineData(-1656968869,AlgorithmOptions.SHA1)]
+        [DataTestMethod]
+        [DataRow(38610104,AlgorithmOptions.SHA512)]
+        [DataRow(-1676987282,AlgorithmOptions.SHA256)]
+        [DataRow(-1272856386,AlgorithmOptions.SHA384)]
+        [DataRow(-1656968869,AlgorithmOptions.SHA1)]
         public void CanVerifyAlgorithmOptionWhenSelected(Int32 expected, AlgorithmOptions selectedOption) {
-           Assert.Equal(expected,HashUtility.Create(selectedOption,EncodingOptions.UTF8,"").ComputeHash(new byte[] {0}).ConvertToInt());
+           Assert.AreEqual(expected,HashUtility.Create(selectedOption,EncodingOptions.UTF8,"").ComputeHash(new byte[] {0}).ConvertToInt());
         }
-       [Fact]
+       [TestMethod]
         public void CanVerifySHA256IsDefault()
         {
-            Assert.Equal(-1676987282,HashUtility.Create().ComputeHash(new byte[] {0}).ConvertToInt());
+            Assert.AreEqual(-1676987282,HashUtility.Create().ComputeHash(new byte[] {0}).ConvertToInt());
         }
-        [Fact]
+        [TestMethod]
         public void HashNameCanBeSet()
         {
-            Assert.Equal("SHA256", HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"SHA256").HashName);
+            Assert.AreEqual("SHA256", HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"SHA256").HashName);
         }
-        [Fact]
+        [TestMethod]
         public void DefaultEncodingIsSet()
         {
-            Assert.Equal(EncodingOptions.Default, HashUtility.Create().EncodingOption);
+            Assert.AreEqual(EncodingOptions.Default, HashUtility.Create().EncodingOption);
         }
-        [Fact]
+        [TestMethod]
         public void CanSelectEncoding()
         {
-            Assert.Equal(EncodingOptions.UTF8, HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").EncodingOption);
+            Assert.AreEqual(EncodingOptions.UTF8, HashUtility.Create(AlgorithmOptions.SHA256,EncodingOptions.UTF8,"").EncodingOption);
         }
     }
     public class StubAlgorithm : ICustomAlgorithm
